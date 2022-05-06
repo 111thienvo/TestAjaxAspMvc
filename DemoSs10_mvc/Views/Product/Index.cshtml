@@ -1,0 +1,98 @@
+﻿<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="~/js/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#selectCategory').change(function () {
+            var value = $('#selectCategory option:selected').val();
+            $.ajax({
+                type: 'POST',
+                url: '/product/search',
+                data: {
+                    category: value
+                },
+                success: function (products) {
+                    var result = '';
+                    for (var i = 0; i < products.length; i++) {
+                        result += '<tr>';
+                        result += '<td>' + products[i].id + '</td>';
+                        result += '<td>' + products[i].name + '</td>';
+                        result += '<td>' + products[i].price + '</td>';
+                        result += '<td>' + products[i].category + '</td>';
+                        result += '</tr>';
+                    }
+                    $('table tbody').html(result);
+                }
+            });
+        });
+        $('#buttonSearch').click(function () {
+            var vmin = $('#min').val();
+            var vmax = $('#max').val();
+            $.ajax({
+                type: 'POST',
+                url: '/product/searchminmax',
+                dataType: 'json',
+                data: {
+                    min: vmin,
+                    max: vmax
+                },
+                success: function (products) {
+                    var result = '';
+                    for (var i = 0; i < products.length; i++) {
+                        result += '<tr>';
+                        result += '<td>' + products[i].id + '</td>';
+                        result += '<td>' + products[i].name + '</td>';
+                        result += '<td>' + products[i].price + '</td>';
+                        result += '<td>' + products[i].category + '</td>';
+                        result += '</tr>';
+                    }
+                    $('table tbody').html(result);
+                }
+            })
+        });
+        $('#textboxKeyword').autocomplete({
+            source: '/product/searcByKeyword',
+            select: function (event, ui) {
+                console.log("Selected: " + ui.item.value + " aka " + ui.item.id);
+            }
+            });
+    });
+</script>
+
+<h3>Product Page</h3>
+<form>
+    Category <select id="selectCategory">
+        <option value="all">All</option>
+        <option value="Category 1">Category 1</option>
+        <option value="Category 2">Category 2</option>
+        <option value="Category 3">Category 3</option>
+    </select>
+    <br />
+    Min <input type="text" id="min" />
+    Max <input type="text" id="max" />
+    <input type="button" value="Search" id="buttonSearch" />
+    <br />
+    Keyword<input type="text" id="textboxKeyword" />
+    
+</form>
+<table border="1">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Category</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var pro in ViewBag.products)
+        {
+            <tr>
+                <td>@pro.Id</td>
+                <td>@pro.Name</td>
+                <td>@pro.Price</td>
+                <td>@pro.Category</td>
+            </tr>
+        }
+    </tbody>
+</table>
